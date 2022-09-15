@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+let SubsystemIdentifier = "io.Agora.PenTestDemo"
+
 @main
 struct Pen_Test_DemoApp: App {
     @StateObject private var rteManager = RTEManager()
@@ -17,6 +19,7 @@ struct Pen_Test_DemoApp: App {
             ContentView()
                 .environmentObject(rteManager)
                 .environmentObject(rteManager.rtmManager)
+                .environmentObject(rteManager.rtcManager)
         }
     }
 }

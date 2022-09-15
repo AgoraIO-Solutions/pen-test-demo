@@ -10,11 +10,7 @@ import AgoraRtmKit
 import OSLog
 import Combine
 
-private let logger = Logger(subsystem: "io.agora.PenTestDemo", category: "RTM")
-
-enum ConnectionState {
-    case disconnected, connected, connecting
-}
+private let logger = Logger(subsystem: SubsystemIdentifier, category: "RTM")
 
 class RTMManager: NSObject, ObservableObject {
     private let jsonEncoder = JSONEncoder()
@@ -28,12 +24,11 @@ class RTMManager: NSObject, ObservableObject {
     var connectionState = CurrentValueSubject<ConnectionState, Never>(ConnectionState.disconnected)
 
     private let agoraAppId: String
-    private let userId: String
+    private let userId: String = UUID().uuidString
 
 
-    init(appId: String, userId: String) {
+    init(appId: String) {
         agoraAppId = appId
-        self.userId = userId
         super.init()
 
         rtmKit = .init(appId: agoraAppId, delegate: self)
@@ -56,7 +51,10 @@ class RTMManager: NSObject, ObservableObject {
 
     func leaveChannel() async {
         let errCode = await rtmChannel?.leave()
+
         guard errCode == .ok else { return logger.error("Error leaving channel") }
+        guard await rtmKit?.logout() == .ok else { return logger.error("Error logout") }
+
         connectionState.send(.disconnected)
     }
 

@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject private var rtmManager: RTMManager
+    @EnvironmentObject private var rtcManager: RTCManager
+    @EnvironmentObject private var rteEngineer: RTEManager
     @State private var channelName = ""
     @State private var errorText = false
 
@@ -27,6 +28,10 @@ struct LoginView: View {
             }
 
             Button("Join", action: join)
+
+            Section(header: Text("Nextwork Quality")) {
+                Text("Current Quality \(rtcManager.networkQuality)")
+            }
         }
     }
 
@@ -34,9 +39,7 @@ struct LoginView: View {
         if channelName.isBlank {
             errorText = true
         } else {
-            Task {
-                await rtmManager.joinChannel(channelName)
-            }
+            rteEngineer.joinChannel(channelName)
         }
     }
 }

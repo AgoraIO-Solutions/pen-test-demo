@@ -9,30 +9,56 @@ import Foundation
 import OSLog
 import Combine
 
+enum ConnectionState {
+    case disconnected, connected, connecting
+}
+
 class RTEManager: NSObject, ObservableObject {
-    private let logger = Logger(subsystem: "Managers", category: "RTE")
+    private let logger = Logger(subsystem: SubsystemIdentifier, category: "RTE")
 
     @Published private(set) var rtmManager: RTMManager
-    private var rtmConnectionStateSub: AnyCancellable?
+    @Published private(set) var rtcManager: RTCManager
+    private var connectionStateSub: AnyCancellable?
+    private lazy var connectionPublisher = {
+        Publishers.CombineLatest(rtmManager.connectionState, rtcManager.connectionState)
+    }()
 
-    private let userId = UInt32.random(in: 0..<(1_000_000))
 
     override init() {
         guard let rtmId: String = try? Configuration.value(for: "APP_ID") else { fatalError("must have app id in config") }
-        self.rtmManager = RTMManager(appId: rtmId, userId: "\(userId)")
+        self.rtmManager = RTMManager(appId: rtmId)
+        self.rtcManager = RTCManager(appId: rtmId)
         super.init()
-        rtmConnectionStateSub = rtmManager.connectionState
+
+        connectionStateSub = connectionPublisher
             .receive(on: RunLoop.main)
             .subscribe(on: RunLoop.main)
-            .sink { connectionState in
-                self.loggedIn = connectionState == .connected
+            .sink { (rtmState, rtcState) in
+                guard rtmState == rtcState else {
+                    self.loggedIn = false
+                    return
+                }
+                self.loggedIn = rtcState == .connected
         }
-
-
     }
 
     @Published var loggedIn: Bool = false
 
+    func joinChannel(_ name: String) {
+        guard rtcManager.connectionState.value == .disconnected && rtmManager.connectionState.value == .disconnected else {
+            return logger.debug("Debounced join spam")
+        }
+
+        Task {
+            await rtmManager.joinChannel(name)
+        }
+        rtcManager.joinChannel(name: name)
+    }
+
+    func leave() {
+        rtcManager.leave()
+        Task {
+            await rtmManager.leaveChannel()
+        }
+    }
 }
-
-

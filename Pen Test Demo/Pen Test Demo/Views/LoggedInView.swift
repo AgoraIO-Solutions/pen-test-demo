@@ -18,6 +18,10 @@ struct LoggedInView: View {
                 Text("RTM")
                 Image(systemName: "text.bubble")
             }
+            SettingsScreen().tabItem {
+                Text("Settings")
+                Image(systemName: "gear.circle")
+            }
         }
     }
 }
