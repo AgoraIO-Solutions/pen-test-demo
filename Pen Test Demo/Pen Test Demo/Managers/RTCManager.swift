@@ -15,7 +15,7 @@ import Combine
 
 // - adjust rtc stream resolution,
 
-class RTCUser: ObservableObject, Hashable {
+class RTCUser: ObservableObject, Hashable, Identifiable {
     static func == (lhs: RTCUser, rhs: RTCUser) -> Bool {
         return lhs.uid == rhs.uid
     }
@@ -43,12 +43,15 @@ class RTCManager: NSObject, ObservableObject {
     }
     var connectionState = CurrentValueSubject<ConnectionState, Never>(ConnectionState.disconnected)
 
-    // TODO: make this useful in the UI
     @Published var networkQuality = "Loading..."
-    // TODO: make this useful in the UI
-    @Published var myUid: UInt = 0
-    // TODO: make this useful in the UI
-    @Published var focusedUid: UInt = 0
+    @Published var myUid: UInt = 0 {
+        didSet {
+            objectWillChange.send()
+        }
+    }
+
+    @Published var focusedRtcUser = RTCUser(uid: 0)
+
     // TODO: make this useful in the UI
     @Published var publishAudio = false {
         didSet {
@@ -57,15 +60,18 @@ class RTCManager: NSObject, ObservableObject {
         }
     }
     // TODO: make this useful in the UI
-    @Published var publishVideo = false {
+    @Published var publishVideo = true {
         didSet {
             guard engine != .none else { return }
-            engine.muteLocalAudioStream(!publishVideo)
+            engine.muteLocalVideoStream(!publishVideo)
         }
     }
 
-    var sortedUids: [UInt] {
-        return users.keys.sorted() // consistently get the same order of uids
+    var sortedRtcUsers: [RTCUser] {
+        return users
+            .keys.filter { $0 != focusedRtcUser.uid }
+            .sorted()
+            .compactMap { users[$0] } // consistently get the same order of uids
     }
 
     init(appId: String) {
@@ -74,10 +80,12 @@ class RTCManager: NSObject, ObservableObject {
         let config = AgoraRtcEngineConfig()
         config.channelProfile = .communication
         config.appId = appId
-        engine = .sharedEngine(withAppId: appId, delegate: self)
+
+        engine = .sharedEngine(with: config, delegate: self)
         engine.enableDualStreamMode(true)
         engine.enableAudio()
         engine.enableVideo()
+        engine.startPreview()
 
         engine.muteLocalAudioStream(!publishAudio)
         engine.muteLocalVideoStream(!publishVideo)
@@ -98,7 +106,13 @@ class RTCManager: NSObject, ObservableObject {
 extension RTCManager {
     func joinChannel(name: String) {
         connectionState.send(.connecting)
-        let status = engine.joinChannel(byToken: .none, channelId: name, info: .none, uid: myUid) { [weak self] _, uid, _ in
+
+        let options = AgoraRtcChannelMediaOptions()
+        options.channelProfile = .communication
+        //options.clientRoleType = .broadcaster
+
+
+        let status = engine.joinChannel(byToken: .none, channelId: name, uid: myUid, mediaOptions: options) { [weak self] _, uid, _ in
             self?.logger.info("Join success called, joined as \(uid)")
             self?.myUid = uid
             self?.users[uid] = RTCUser(uid: uid)
@@ -124,6 +138,7 @@ extension RTCManager {
 extension RTCManager {
     func setupCanvas(_ uiView: UIView, uid: UInt, fullSize: Bool) {
         engine.setRemoteVideoStream(uid, type: fullSize ? .high : .low)
+        engine.setRemoteVideoStream(uid, type: .low)
         if uid == myUid {
             setupCanvasForLocal(uiView, uid: uid)
         } else {
@@ -171,8 +186,9 @@ extension RTCManager: AgoraRtcEngineDelegate {
     func rtcEngine(_ engine: AgoraRtcEngineKit, didJoinedOfUid uid: UInt, elapsed: Int) {
         logger.info("other user joined as \(uid)")
         users[uid] = RTCUser(uid: uid)
-        if focusedUid == 0 {
-            focusedUid = uid
+        if focusedRtcUser.uid == 0 {
+            print("focus should change to \(uid)")
+            focusedRtcUser = users[uid]!
         }
     }
 

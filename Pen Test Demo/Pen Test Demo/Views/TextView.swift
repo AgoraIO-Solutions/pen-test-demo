@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct TextView: View {
-    @EnvironmentObject private var rtmManager: RTMManager
+    @EnvironmentObject var rtmManager: RTMManager
 
     @State private var text = ""
 
@@ -38,7 +38,7 @@ struct TextView: View {
 struct TextView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            TextView().environmentObject(RTEManager())
+            TextView().environmentObject( RTEManager().rtmManager)
         }
     }
 }

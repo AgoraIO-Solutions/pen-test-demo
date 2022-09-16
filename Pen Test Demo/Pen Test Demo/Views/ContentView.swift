@@ -14,10 +14,13 @@ struct ContentView: View {
         NavigationView {
             if rteManager.loggedIn {
                 LoggedInView()
+
             } else {
-                LoginView().navigationTitle("Welcome")
+                LoginView()
+                    .navigationTitle("Welcome")
             }
         }.navigationViewStyle(.stack)
+            .navigationBarHidden(true)
     }
 }
 

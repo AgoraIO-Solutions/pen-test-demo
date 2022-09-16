@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject private var rtcManager: RTCManager
     @EnvironmentObject private var rteEngineer: RTEManager
-    @State private var channelName = ""
+    @State private var channelName = "test"
     @State private var errorText = false
 
     var body: some View {
@@ -30,7 +29,7 @@ struct LoginView: View {
             Button("Join", action: join)
 
             Section(header: Text("Nextwork Quality")) {
-                Text("Current Quality \(rtcManager.networkQuality)")
+                Text("Current Quality \(rteEngineer.rtcManager.networkQuality)")
             }
         }
     }

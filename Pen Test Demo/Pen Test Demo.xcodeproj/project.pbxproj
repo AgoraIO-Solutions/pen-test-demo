@@ -32,6 +32,7 @@
 		28285DFB28D3704900AE6DF4 /* VirtualBackground in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DFA28D3704900AE6DF4 /* VirtualBackground */; };
 		28285DFE28D370BE00AE6DF4 /* AgoraRtmKit in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DFD28D370BE00AE6DF4 /* AgoraRtmKit */; };
 		2879264728D3AB1300843542 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2879264628D3AB1300843542 /* SettingsScreen.swift */; };
+		2879264928D410D800843542 /* RTCDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2879264828D410D800843542 /* RTCDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 		28285DE328D2C84900AE6DF4 /* KeyboardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardModifier.swift; sourceTree = "<group>"; };
 		28285DE528D36F7C00AE6DF4 /* RTCManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTCManager.swift; sourceTree = "<group>"; };
 		2879264628D3AB1300843542 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		2879264828D410D800843542 /* RTCDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTCDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 				28285DBD28D272F100AE6DF4 /* TextView.swift */,
 				28285DE328D2C84900AE6DF4 /* KeyboardModifier.swift */,
 				2879264628D3AB1300843542 /* SettingsScreen.swift */,
+				2879264828D410D800843542 /* RTCDetailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -236,6 +239,7 @@
 				28285DAB28D2709000AE6DF4 /* ContentView.swift in Sources */,
 				28285DBE28D272F100AE6DF4 /* TextView.swift in Sources */,
 				28285DBC28D2713A00AE6DF4 /* RTCView.swift in Sources */,
+				2879264928D410D800843542 /* RTCDetailView.swift in Sources */,
 				28285DDF28D2799E00AE6DF4 /* Configuration.swift in Sources */,
 				28285DA928D2709000AE6DF4 /* Pen_Test_DemoApp.swift in Sources */,
 				28285DE628D36F7C00AE6DF4 /* RTCManager.swift in Sources */,
@@ -375,6 +379,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Pen-Test-Demo-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "For Video";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "For Voice";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -407,6 +413,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Pen-Test-Demo-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "For Video";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "For Voice";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
