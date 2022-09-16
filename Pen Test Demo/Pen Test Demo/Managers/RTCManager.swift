@@ -11,16 +11,18 @@ import SwiftUI
 import AgoraRtcKit
 import Combine
 
-// TODO: Following Action Items
 
-// - adjust rtc stream resolution,
+enum VideoQuality {
+    case low, medium, high
+}
+
 
 class RTCUser: ObservableObject, Hashable, Identifiable {
     static func == (lhs: RTCUser, rhs: RTCUser) -> Bool {
         return lhs.uid == rhs.uid
     }
 
-    @Published var fps = 15
+    @Published var fps = 15 
     let uid: UInt
 
     init(uid: UInt) {
@@ -50,16 +52,21 @@ class RTCManager: NSObject, ObservableObject {
         }
     }
 
+    @Published var videoQuality = VideoQuality.medium {
+        didSet {
+            adjustVideoQuality()
+        }
+    }
+
+
     @Published var focusedRtcUser = RTCUser(uid: 0)
 
-    // TODO: make this useful in the UI
     @Published var publishAudio = false {
         didSet {
             guard engine != .none else { return }
             engine.muteLocalAudioStream(!publishAudio)
         }
     }
-    // TODO: make this useful in the UI
     @Published var publishVideo = true {
         didSet {
             guard engine != .none else { return }
@@ -90,6 +97,7 @@ class RTCManager: NSObject, ObservableObject {
         engine.muteLocalAudioStream(!publishAudio)
         engine.muteLocalVideoStream(!publishVideo)
         startLastMileProbe()
+        adjustVideoQuality()
     }
 
     func startLastMileProbe() {
@@ -99,6 +107,39 @@ class RTCManager: NSObject, ObservableObject {
         config.probeUplink = true
         config.probeDownlink = true
         engine.startLastmileProbeTest(config)
+    }
+
+    func adjustVideoQuality() {
+        let config: AgoraVideoEncoderConfiguration
+
+        switch videoQuality {
+        case .low:
+            config = .init(
+                size: .init(width: 160, height: 120),
+                frameRate: .fps15,
+                bitrate: AgoraVideoBitrateStandard,
+                orientationMode: .adaptative,
+                mirrorMode: .auto
+            )
+        case .medium:
+            config = .init(
+                size: .init(width: 480, height: 360),
+                frameRate: .fps30,
+                bitrate: AgoraVideoBitrateStandard,
+                orientationMode: .adaptative,
+                mirrorMode: .auto
+            )
+        case .high:
+            config = .init(
+                size: .init(width: 960, height: 720),
+                frameRate: .fps30,
+                bitrate: AgoraVideoBitrateStandard,
+                orientationMode: .adaptative,
+                mirrorMode: .auto
+            )
+        }
+
+        engine.setVideoEncoderConfiguration(config)
     }
 }
 
@@ -138,7 +179,7 @@ extension RTCManager {
 extension RTCManager {
     func setupCanvas(_ uiView: UIView, uid: UInt, fullSize: Bool) {
         engine.setRemoteVideoStream(uid, type: fullSize ? .high : .low)
-        engine.setRemoteVideoStream(uid, type: .low)
+
         if uid == myUid {
             setupCanvasForLocal(uiView, uid: uid)
         } else {

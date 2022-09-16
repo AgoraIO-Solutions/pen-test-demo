@@ -24,40 +24,51 @@ struct RTCView: View {
 
                     ScrollView(.horizontal) {
                         LazyHStack(alignment: .center, spacing: 10) {
-                            ForEach(rtcManager.sortedRtcUsers) {
-                                RTCDetailView(rtcUser: $0, fullSize: false)
+                            ForEach(rtcManager.sortedRtcUsers) { rtcUser in
+                                RTCDetailView(rtcUser: rtcUser, fullSize: false)
                                     .frame(width: heightOfNonPrimaryVideos, height: heightOfNonPrimaryVideos)
+                                    .onTapGesture {
+                                        rtcManager.focusedRtcUser = rtcUser
+                                    }
                             }
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: heightOfNonPrimaryVideos, alignment: .center)
 
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button {
+                                rtcManager.publishAudio.toggle()
+                            } label: {
+                                if rtcManager.publishAudio {
+                                    Image(systemName: "mic")
+                                } else {
+                                    Image(systemName: "mic.slash")
+                                }
+                            }
 
-                    HStack {
-                        Spacer()
-                        Button {
-                            rtcManager.publishAudio.toggle()
-                        } label: {
-                            if rtcManager.publishAudio {
-                                Image(systemName: "mic")
-                            } else {
-                                Image(systemName: "mic.slash")
+                            Spacer()
+
+                            Button {
+                                rtcManager.publishVideo.toggle()
+                            } label: {
+                                if rtcManager.publishVideo {
+                                    Image(systemName: "video")
+                                } else {
+                                    Image(systemName: "video.slash")
+                                }
+                            }
+
+                            Spacer()
+                        }
+                        List {
+                            Picker("Video Resolution", selection: $rtcManager.videoQuality) {
+                                Text("High").tag(VideoQuality.high)
+                                Text("Medium").tag(VideoQuality.medium)
+                                Text("Low").tag(VideoQuality.low)
                             }
                         }
-
-                        Spacer()
-
-                        Button {
-                            rtcManager.publishVideo.toggle()
-                        } label: {
-                            if rtcManager.publishVideo {
-                                Image(systemName: "video")
-                            } else {
-                                Image(systemName: "video.slash")
-                            }
-                        }
-
-                        Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: heightOfControls, alignment: .center)
 

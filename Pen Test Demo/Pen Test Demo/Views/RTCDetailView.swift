@@ -27,7 +27,7 @@ struct VideoView: UIViewRepresentable {
 }
 
 struct RTCDetailView: View {
-    @State var rtcUser: RTCUser
+    @ObservedObject var rtcUser: RTCUser
     let fullSize: Bool
 
     var body: some View {
