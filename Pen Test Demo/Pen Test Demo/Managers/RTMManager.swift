@@ -19,13 +19,11 @@ class RTMManager: NSObject, ObservableObject {
     private var rtmKit: AgoraRtmKit?
     private var rtmChannel: AgoraRtmChannel?
 
-
     @Published var messages = [String]()
     var connectionState = CurrentValueSubject<ConnectionState, Never>(ConnectionState.disconnected)
 
     private let agoraAppId: String
     private let userId: String = UUID().uuidString
-
 
     init(appId: String) {
         agoraAppId = appId

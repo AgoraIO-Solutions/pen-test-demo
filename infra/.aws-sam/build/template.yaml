@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Lambda application that calls the Lambda API.
+Globals:
+  Function:
+    Timeout: 5
+    Runtime: go1.x
+    Tracing: Active
+    Handler: main
+Resources:
+  PenTestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        ApiKeyRequired: true
+  TokenLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: TokenLambda
+      Handler: main
+      Events:
+        Endpoint:
+          Type: Api
+          Properties:
+            Auth:
+              ApiKeyRequired: true
+            Path: /api/pen_test_token
+            Method: get
+            RestApiId:
+              Ref: PenTestApi
+      Description: The end point with which to get tokens from for this Pen Test demo
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AWSLambda_ReadOnlyAccess
+      - AWSXrayWriteOnlyAccess
+    Metadata:
+      SamResourceId: TokenLambda
