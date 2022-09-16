@@ -34,5 +34,8 @@ Resources:
       - AWSLambdaBasicExecutionRole
       - AWSLambda_ReadOnlyAccess
       - AWSXrayWriteOnlyAccess
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:Meta_Pen_Test_Prod_Secrets-bCewDg
     Metadata:
       SamResourceId: TokenLambda
