@@ -1,32 +1,29 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Lambda application that calls the Lambda API.
-Globals:
-  Function:
-    Timeout: 5
-    Runtime: go1.x
-    Tracing: Active
-    Handler: main
 Resources:
   PenTestApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: prod
+      StageName: dev
       Auth:
         ApiKeyRequired: true
   TokenLambda:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: TokenLambda
+      Timeout: 5
+      Runtime: go1.x
+      Tracing: Active
+      Tags:
+        Meta_Pen_Test: From sam file
       Handler: main
       Events:
         Endpoint:
           Type: Api
           Properties:
-            Auth:
-              ApiKeyRequired: true
             Path: /api/pen_test_token
-            Method: get
+            Method: GET
             RestApiId:
               Ref: PenTestApi
       Description: The end point with which to get tokens from for this Pen Test demo
@@ -37,5 +34,64 @@ Resources:
       - AWSSecretsManagerGetSecretValuePolicy:
           SecretArn:
             Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:Meta_Pen_Test_Prod_Secrets-bCewDg
+      - Statement:
+        - Sid: AWSSecretsManagerDescribeSecretValuePolicy
+          Effect: Allow
+          Action:
+          - secretsmanager:DescribeSecret
+          Resource:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:Meta_Pen_Test_Prod_Secrets-bCewDg
     Metadata:
       SamResourceId: TokenLambda
+  PenTestiOSApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn:
+    - PenTestApidevStage
+    Properties:
+      Description: The key for the iOS Application
+      Enabled: 'true'
+      Name: iOS App Key
+      StageKeys:
+      - RestApiId:
+          Ref: PenTestApi
+        StageName: dev
+  iOSUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn:
+    - PenTestApidevStage
+    Properties:
+      ApiStages:
+      - ApiId:
+          Ref: PenTestApi
+        Stage: dev
+      Description: iOS Apps usage requirements
+      Quota:
+        Limit: 5000
+        Period: MONTH
+      Throttle:
+        BurstLimit: 200
+        RateLimit: 100
+      UsagePlanName: iOS-users-plan
+  iOSUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    DependsOn:
+    - PenTestApidevStage
+    Properties:
+      KeyId:
+        Ref: PenTestiOSApiKey
+      KeyType: API_KEY
+      UsagePlanId:
+        Ref: iOSUsagePlan
+Outputs:
+  Region:
+    Description: Region
+    Value:
+      Ref: AWS::Region
+  ApiId:
+    Description: API ID
+    Value:
+      Ref: PenTestApi
+  ApiUrl:
+    Description: API endpoint URL for Prod environment
+    Value:
+      Fn::Sub: https://${PenTestApi}.execute-api.${AWS::Region}.amazonaws.com/dev/

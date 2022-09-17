@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "pen-test-api-test"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-p6vhw4idjj2o"
+s3_prefix = "pen-test-api-test"
+region = "us-west-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

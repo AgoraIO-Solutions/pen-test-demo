@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	rtctokenbuilder "github.com/AgoraIO/Tools/DynamicKey/AgoraDynamicKey/go/src/RtcTokenBuilder"
 	rtmtokenbuilder "github.com/AgoraIO/Tools/DynamicKey/AgoraDynamicKey/go/src/RtmTokenBuilder"
@@ -22,7 +21,7 @@ var (
 func GetAWSSecret(secretId string) (string, error) {
 	result, err := secretCache.GetSecretString("Meta_Pen_Test_Prod_Secrets")
 	if err != nil {
-		return "", errors.New("error: Failed to load secret from AWS Secrets Manager")
+		return "", err
 	}
 	secretMap := map[string]string{}
 	json.Unmarshal([]byte(result), &secretMap)
