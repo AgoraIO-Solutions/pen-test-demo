@@ -96,6 +96,13 @@ class RTCManager: NSObject, ObservableObject {
 
         engine.muteLocalAudioStream(!publishAudio)
         engine.muteLocalVideoStream(!publishVideo)
+
+        let testStr = "RFG8dpjywFaKZ2JQCzxvD3GbphUCurLC"
+        let agoraEncryptionConfig = AgoraEncryptionConfig()
+        agoraEncryptionConfig.encryptionKey = testStr
+        agoraEncryptionConfig.encryptionMode = .AES256GCM
+        engine.enableEncryption(true, encryptionConfig: agoraEncryptionConfig)
+
         startLastMileProbe()
         adjustVideoQuality()
     }

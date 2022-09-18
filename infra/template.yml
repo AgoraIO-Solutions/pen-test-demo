@@ -4,6 +4,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: An AWS Lambda application that calls the Lambda API.
 
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: go1.x
+    Tracing: Active
+    Handler: main
+
 Resources:
   PenTestApi:
     Type: AWS::Serverless::Api
@@ -15,12 +22,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Timeout: 5
-      Runtime: go1.x
-      Tracing: Active
       Tags:
         Meta_Pen_Test: "From sam file"
-      Handler: main
       Events:
         Endpoint:
           Type: Api
@@ -41,6 +44,48 @@ Resources:
               Action:
                 - secretsmanager:DescribeSecret
               Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:Meta_Pen_Test_Prod_Secrets-bCewDg"
+
+  AesLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./aes_key
+      Tags:
+        Meta_Pen_Test: "From sam file"
+      Handler: main
+      Events:
+        Endpoint:
+          Type: Api
+          Properties:
+            Path: '/api/pen_test_aes_key'
+            Method: GET
+            RestApiId: !Ref PenTestApi
+      Description: The end point with which to get tokens from for this Pen Test demo
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBWritePolicy:
+            TableName: !Ref AesDBTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AesDBTable
+        - Statement:
+            - Sid: AWSKmsGenerateDataKey
+              Effect: Allow
+              Action:
+                - kms:GenerateDataKey
+              Resource: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/38abf113-5b68-4c18-97d1-923f8193c5b6"
+
+  AesDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: channel
+        Type: String
+      SSESpecification:
+        SSEEnabled: true
+      TableName: ChannelAesKeys
+      Tags:
+        Meta_Pen_Test: "AES encryption store"
 
   PenTestiOSApiKey:
     Type: AWS::ApiGateway::ApiKey
