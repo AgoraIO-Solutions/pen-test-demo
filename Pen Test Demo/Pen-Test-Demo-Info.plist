@@ -4,5 +4,9 @@
 <dict>
 	<key>APP_ID</key>
 	<string>$(APP_ID)</string>
+	<key>AWS_API_BASE</key>
+	<string>$(AWS_API_BASE)</string>
+	<key>AWS_APP_KEY</key>
+	<string>$(AWS_APP_KEY)</string>
 </dict>
 </plist>

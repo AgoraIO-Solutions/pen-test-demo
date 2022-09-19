@@ -8,6 +8,7 @@
 import Foundation
 import AgoraRtmKit
 import OSLog
+import CommonCrypto
 import Combine
 
 private let logger = Logger(subsystem: SubsystemIdentifier, category: "RTM")
@@ -32,9 +33,8 @@ class RTMManager: NSObject, ObservableObject {
         rtmKit = .init(appId: agoraAppId, delegate: self)
     }
 
-    func joinChannel(_ channelName: String) async {
-        // TODO: Require tokens
-        let errorCode = await rtmKit?.login(byToken: agoraAppId, user: userId)
+    func joinChannel(_ channelName: String, tokens: Tokens) async {
+        let errorCode = await rtmKit?.login(byToken: tokens.rtm, user: tokens.rtmuid)
         guard errorCode == .ok else {
             logger.error("Error logging into rtm \(errorCode?.rawValue ?? .min)")
             return

@@ -50,9 +50,18 @@ class RTEManager: NSObject, ObservableObject {
         }
 
         Task {
-            await rtmManager.joinChannel(name)
+            do {
+                async let aesKeyTask = try NetworkClient.getAesKey(channelName: name)
+                async let tokenTask = try NetworkClient.getToken(channelName: name)
+                let (tokens, aesKey) = try await (tokenTask, aesKeyTask)
+                let (_, _) = await (rtmManager.joinChannel(name, tokens: tokens), rtcManager.joinChannel(name: name, aesKey: aesKey.key, tokens: tokens))
+                //await (rtmJob, rtcJob)
+            } catch {
+                logger.error("Error joining channel \(error.localizedDescription)")
+            }
+
         }
-        rtcManager.joinChannel(name: name)
+
     }
 
     func leave() {

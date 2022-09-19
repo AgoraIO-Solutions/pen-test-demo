@@ -46,7 +46,7 @@ class RTCManager: NSObject, ObservableObject {
     var connectionState = CurrentValueSubject<ConnectionState, Never>(ConnectionState.disconnected)
 
     @Published var networkQuality = "Loading..."
-    @Published var myUid: UInt = 0 {
+    @Published private(set) var myUid: UInt = 0 {
         didSet {
             objectWillChange.send()
         }
@@ -97,12 +97,6 @@ class RTCManager: NSObject, ObservableObject {
         engine.muteLocalAudioStream(!publishAudio)
         engine.muteLocalVideoStream(!publishVideo)
 
-        let testStr = "RFG8dpjywFaKZ2JQCzxvD3GbphUCurLC"
-        let agoraEncryptionConfig = AgoraEncryptionConfig()
-        agoraEncryptionConfig.encryptionKey = testStr
-        agoraEncryptionConfig.encryptionMode = .AES256GCM
-        engine.enableEncryption(true, encryptionConfig: agoraEncryptionConfig)
-
         startLastMileProbe()
         adjustVideoQuality()
     }
@@ -148,21 +142,32 @@ class RTCManager: NSObject, ObservableObject {
 
         engine.setVideoEncoderConfiguration(config)
     }
+
+    private func setEncryption(_ aesKey: String) {
+        let agoraEncryptionConfig = AgoraEncryptionConfig()
+        agoraEncryptionConfig.encryptionKey = aesKey
+        agoraEncryptionConfig.encryptionMode = .AES256GCM
+        engine.enableEncryption(true, encryptionConfig: agoraEncryptionConfig)
+    }
 }
 
 // MARK: - Public API
 extension RTCManager {
-    func joinChannel(name: String) {
+    func joinChannel(name: String, aesKey: String, tokens: Tokens) async {
         connectionState.send(.connecting)
+        setEncryption(aesKey)
 
         let options = AgoraRtcChannelMediaOptions()
         options.channelProfile = .communication
-        //options.clientRoleType = .broadcaster
+
+        logger.info("tokens \(tokens.uid), rtc \(tokens.rtc)")
+        await MainActor.run {
+            self.myUid = tokens.uid
+        }
 
 
-        let status = engine.joinChannel(byToken: .none, channelId: name, uid: myUid, mediaOptions: options) { [weak self] _, uid, _ in
+        let status = engine.joinChannel(byToken: tokens.rtc, channelId: name, uid: tokens.uid, mediaOptions: options) { [weak self] _, uid, _ in
             self?.logger.info("Join success called, joined as \(uid)")
-            self?.myUid = uid
             self?.users[uid] = RTCUser(uid: uid)
         }
 
@@ -227,7 +232,6 @@ extension RTCManager: AgoraRtcEngineDelegate {
 
     func rtcEngine(_ engine: AgoraRtcEngineKit, didJoinChannel channel: String, withUid uid: UInt, elapsed: Int) {
         logger.info("Joined \(channel) as uid \(uid)")
-        myUid = uid
         users[uid] = RTCUser(uid: uid)
     }
 

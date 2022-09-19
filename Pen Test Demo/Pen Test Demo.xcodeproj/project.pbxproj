@@ -33,6 +33,7 @@
 		28285DFE28D370BE00AE6DF4 /* AgoraRtmKit in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DFD28D370BE00AE6DF4 /* AgoraRtmKit */; };
 		2879264728D3AB1300843542 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2879264628D3AB1300843542 /* SettingsScreen.swift */; };
 		2879264928D410D800843542 /* RTCDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2879264828D410D800843542 /* RTCDetailView.swift */; };
+		2879267028D8A6A200843542 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2879266F28D8A6A200843542 /* NetworkClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		28285DE528D36F7C00AE6DF4 /* RTCManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTCManager.swift; sourceTree = "<group>"; };
 		2879264628D3AB1300843542 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		2879264828D410D800843542 /* RTCDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTCDetailView.swift; sourceTree = "<group>"; };
+		2879266F28D8A6A200843542 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 		28285DA728D2709000AE6DF4 /* Pen Test Demo */ = {
 			isa = PBXGroup;
 			children = (
+				2879266E28D8A68B00843542 /* Network */,
 				28285DE228D285A000AE6DF4 /* Pen-Test-Demo-Info.plist */,
 				28285DC128D276F800AE6DF4 /* Managers */,
 				28285DB828D270D100AE6DF4 /* Views */,
@@ -142,6 +145,14 @@
 				28285DE028D27B0000AE6DF4 /* RTMManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		2879266E28D8A68B00843542 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				2879266F28D8A6A200843542 /* NetworkClient.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -242,6 +253,7 @@
 				2879264928D410D800843542 /* RTCDetailView.swift in Sources */,
 				28285DDF28D2799E00AE6DF4 /* Configuration.swift in Sources */,
 				28285DA928D2709000AE6DF4 /* Pen_Test_DemoApp.swift in Sources */,
+				2879267028D8A6A200843542 /* NetworkClient.swift in Sources */,
 				28285DE628D36F7C00AE6DF4 /* RTCManager.swift in Sources */,
 				28285DE128D27B0000AE6DF4 /* RTMManager.swift in Sources */,
 			);

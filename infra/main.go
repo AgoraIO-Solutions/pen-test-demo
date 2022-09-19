@@ -36,8 +36,14 @@ type Token struct {
 	RTM    string `json:"rtm"`
 }
 
+func expiresInNumberOfMinutes(minutes int) uint32 {
+	expireTimeInSeconds := uint32(24 * 60 * 60)
+	currentTimestamp := uint32(time.Now().UTC().Unix())
+	return currentTimestamp + expireTimeInSeconds
+}
+
 func generateRTMToken(uid string) (string, error) {
-	appID, idErr := GetAWSSecret("APP_IDs")
+	appID, idErr := GetAWSSecret("APP_ID")
 	if idErr != nil {
 		return "", idErr
 	}
@@ -45,9 +51,7 @@ func generateRTMToken(uid string) (string, error) {
 	if certErr != nil {
 		return "", certErr
 	}
-	expireTimeInSeconds := uint32(24 * 60 * 60)
-	currentTimestamp := uint32(time.Now().UTC().Unix())
-	expireTimestamp := currentTimestamp + expireTimeInSeconds
+	expireTimestamp := expiresInNumberOfMinutes(120)
 
 	result, err := rtmtokenbuilder.BuildToken(appID, appCertificate, uid, rtmtokenbuilder.RoleRtmUser, expireTimestamp)
 
@@ -58,7 +62,7 @@ func generateRTMToken(uid string) (string, error) {
 }
 
 func generateRtcToken(uid uint32, channelName string, role rtctokenbuilder.Role) (string, error) {
-	appID, idErr := GetAWSSecret("APP_IDs")
+	appID, idErr := GetAWSSecret("APP_ID")
 	if idErr != nil {
 		return "", idErr
 	}
@@ -66,8 +70,9 @@ func generateRtcToken(uid uint32, channelName string, role rtctokenbuilder.Role)
 	if certErr != nil {
 		return "", certErr
 	}
-	tokenExpireTimeInSeconds := uint32(60 * 60 * 24)
-	result, err := rtctokenbuilder.BuildTokenWithUID(appID, appCertificate, channelName, uid, role, tokenExpireTimeInSeconds)
+	expireTimestamp := expiresInNumberOfMinutes(120)
+
+	result, err := rtctokenbuilder.BuildTokenWithUID(appID, appCertificate, channelName, uid, role, expireTimestamp)
 	if err != nil {
 		log.Printf("Error %+v", err)
 	}
@@ -82,7 +87,13 @@ func generateARandomUID() uint32 {
 func getToken(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("Got an event ", event)
 	uid := generateARandomUID()
-	rtcChannel := event.QueryStringParameters["Channel"]
+	rtcChannel := event.QueryStringParameters["channel"]
+	if rtcChannel == "" {
+		return events.APIGatewayProxyResponse{
+			Body:       "channel is a required param",
+			StatusCode: 400,
+		}, nil
+	}
 
 	rtmUid := strconv.FormatUint(uint64(uid), 10)
 	rtmToken, rtmErr := generateRTMToken(rtmUid)
