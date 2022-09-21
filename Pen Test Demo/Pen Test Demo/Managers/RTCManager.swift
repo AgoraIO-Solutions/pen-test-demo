@@ -22,7 +22,7 @@ class RTCUser: ObservableObject, Hashable, Identifiable {
         return lhs.uid == rhs.uid
     }
 
-    @Published var fps = 15 
+    @Published var fps: UInt = 15
     let uid: UInt
 
     init(uid: UInt) {
@@ -84,11 +84,8 @@ class RTCManager: NSObject, ObservableObject {
     init(appId: String) {
         super.init()
 
-        let config = AgoraRtcEngineConfig()
-        config.channelProfile = .communication
-        config.appId = appId
-
-        engine = .sharedEngine(with: config, delegate: self)
+        engine = .sharedEngine(withAppId: appId, delegate: self)
+        engine.setChannelProfile(.communication)
         engine.enableDualStreamMode(true)
         engine.enableAudio()
         engine.enableVideo()
@@ -113,30 +110,28 @@ class RTCManager: NSObject, ObservableObject {
     func adjustVideoQuality() {
         let config: AgoraVideoEncoderConfiguration
 
+
         switch videoQuality {
         case .low:
             config = .init(
                 size: .init(width: 160, height: 120),
                 frameRate: .fps15,
                 bitrate: AgoraVideoBitrateStandard,
-                orientationMode: .adaptative,
-                mirrorMode: .auto
+                orientationMode: .adaptative
             )
         case .medium:
             config = .init(
                 size: .init(width: 480, height: 360),
                 frameRate: .fps30,
                 bitrate: AgoraVideoBitrateStandard,
-                orientationMode: .adaptative,
-                mirrorMode: .auto
+                orientationMode: .adaptative
             )
         case .high:
             config = .init(
                 size: .init(width: 960, height: 720),
                 frameRate: .fps30,
                 bitrate: AgoraVideoBitrateStandard,
-                orientationMode: .adaptative,
-                mirrorMode: .auto
+                orientationMode: .adaptative
             )
         }
 
@@ -157,16 +152,13 @@ extension RTCManager {
         connectionState.send(.connecting)
         setEncryption(aesKey)
 
-        let options = AgoraRtcChannelMediaOptions()
-        options.channelProfile = .communication
-
         logger.info("tokens \(tokens.uid), rtc \(tokens.rtc)")
         await MainActor.run {
             self.myUid = tokens.uid
         }
 
 
-        let status = engine.joinChannel(byToken: tokens.rtc, channelId: name, uid: tokens.uid, mediaOptions: options) { [weak self] _, uid, _ in
+        let status = engine.joinChannel(byToken: tokens.rtc, channelId: name, info: .none, uid: tokens.uid) { [weak self] _, uid, _ in
             self?.logger.info("Join success called, joined as \(uid)")
             self?.users[uid] = RTCUser(uid: uid)
         }
@@ -253,8 +245,8 @@ extension RTCManager: AgoraRtcEngineDelegate {
         users[stats.uid]?.fps = stats.decoderOutputFrameRate
     }
 
-    func rtcEngine(_ engine: AgoraRtcEngineKit, localVideoStats stats: AgoraRtcLocalVideoStats, sourceType: AgoraVideoSourceType) {
-        users[myUid]?.fps = stats.encoderOutputFrameRate
+    func rtcEngine(_ engine: AgoraRtcEngineKit, localVideoStats stats: AgoraRtcLocalVideoStats) {
+        users[myUid]?.fps = UInt(stats.encoderOutputFrameRate)
     }
 }
 

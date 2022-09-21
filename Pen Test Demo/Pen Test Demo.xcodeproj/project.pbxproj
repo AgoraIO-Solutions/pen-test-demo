@@ -21,10 +21,7 @@
 		28285DE428D2C84900AE6DF4 /* KeyboardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28285DE328D2C84900AE6DF4 /* KeyboardModifier.swift */; };
 		28285DE628D36F7C00AE6DF4 /* RTCManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28285DE528D36F7C00AE6DF4 /* RTCManager.swift */; };
 		28285DE928D3704900AE6DF4 /* AINS in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DE828D3704900AE6DF4 /* AINS */; };
-		28285DEB28D3704900AE6DF4 /* AudioBeauty in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DEA28D3704900AE6DF4 /* AudioBeauty */; };
-		28285DED28D3704900AE6DF4 /* ClearVision in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DEC28D3704900AE6DF4 /* ClearVision */; };
 		28285DEF28D3704900AE6DF4 /* ContentInspect in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DEE28D3704900AE6DF4 /* ContentInspect */; };
-		28285DF128D3704900AE6DF4 /* PVC in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DF028D3704900AE6DF4 /* PVC */; };
 		28285DF328D3704900AE6DF4 /* ReplayKit in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DF228D3704900AE6DF4 /* ReplayKit */; };
 		28285DF528D3704900AE6DF4 /* RtcBasic in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DF428D3704900AE6DF4 /* RtcBasic */; };
 		28285DF728D3704900AE6DF4 /* SpatialAudio in Frameworks */ = {isa = PBXBuildFile; productRef = 28285DF628D3704900AE6DF4 /* SpatialAudio */; };
@@ -64,15 +61,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				28285DED28D3704900AE6DF4 /* ClearVision in Frameworks */,
 				28285DE928D3704900AE6DF4 /* AINS in Frameworks */,
 				28285DF328D3704900AE6DF4 /* ReplayKit in Frameworks */,
 				28285DF528D3704900AE6DF4 /* RtcBasic in Frameworks */,
 				28285DF728D3704900AE6DF4 /* SpatialAudio in Frameworks */,
-				28285DF128D3704900AE6DF4 /* PVC in Frameworks */,
 				28285DFB28D3704900AE6DF4 /* VirtualBackground in Frameworks */,
 				28285DF928D3704900AE6DF4 /* SuperResolution in Frameworks */,
-				28285DEB28D3704900AE6DF4 /* AudioBeauty in Frameworks */,
 				28285DEF28D3704900AE6DF4 /* ContentInspect in Frameworks */,
 				28285DFE28D370BE00AE6DF4 /* AgoraRtmKit in Frameworks */,
 			);
@@ -173,10 +167,7 @@
 			name = "Pen Test Demo";
 			packageProductDependencies = (
 				28285DE828D3704900AE6DF4 /* AINS */,
-				28285DEA28D3704900AE6DF4 /* AudioBeauty */,
-				28285DEC28D3704900AE6DF4 /* ClearVision */,
 				28285DEE28D3704900AE6DF4 /* ContentInspect */,
-				28285DF028D3704900AE6DF4 /* PVC */,
 				28285DF228D3704900AE6DF4 /* ReplayKit */,
 				28285DF428D3704900AE6DF4 /* RtcBasic */,
 				28285DF628D3704900AE6DF4 /* SpatialAudio */,
@@ -385,7 +376,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Pen Test Demo/Preview Content\"";
 				DEVELOPMENT_TEAM = AZ59WCD7SF;
 				ENABLE_PREVIEWS = YES;
@@ -419,7 +410,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Pen Test Demo/Preview Content\"";
 				DEVELOPMENT_TEAM = AZ59WCD7SF;
 				ENABLE_PREVIEWS = YES;
@@ -474,8 +465,9 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AgoraIO/AgoraRtcEngine_iOS";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = versionRange;
+				maximumVersion = 3.8.0;
+				minimumVersion = 3.7.0;
 			};
 		};
 		28285DFC28D370BE00AE6DF4 /* XCRemoteSwiftPackageReference "AgoraRtm_iOS" */ = {
@@ -494,25 +486,10 @@
 			package = 28285DE728D3704900AE6DF4 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */;
 			productName = AINS;
 		};
-		28285DEA28D3704900AE6DF4 /* AudioBeauty */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 28285DE728D3704900AE6DF4 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */;
-			productName = AudioBeauty;
-		};
-		28285DEC28D3704900AE6DF4 /* ClearVision */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 28285DE728D3704900AE6DF4 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */;
-			productName = ClearVision;
-		};
 		28285DEE28D3704900AE6DF4 /* ContentInspect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 28285DE728D3704900AE6DF4 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */;
 			productName = ContentInspect;
-		};
-		28285DF028D3704900AE6DF4 /* PVC */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 28285DE728D3704900AE6DF4 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */;
-			productName = PVC;
 		};
 		28285DF228D3704900AE6DF4 /* ReplayKit */ = {
 			isa = XCSwiftPackageProductDependency;
