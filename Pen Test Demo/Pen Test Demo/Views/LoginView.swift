@@ -28,6 +28,7 @@ struct LoginView: View {
             }
 
             Button("Join", action: join)
+                .disabled(rteManager.loggingIn)
 
             Section(header: Text("Nextwork Quality")) {
                 Text("Current Quality \(rtcManager.networkQuality)")

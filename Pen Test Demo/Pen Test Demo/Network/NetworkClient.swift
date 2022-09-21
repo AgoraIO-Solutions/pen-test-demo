@@ -96,7 +96,9 @@ extension URLSession {
                     return continuation.resume(throwing: err)
                 }
 
-                guard let resp = maybeResp, let data = maybeData else { return continuation.resume(throwing: URLSessionError.missingResponseOrData) }
+                guard let resp = maybeResp, let data = maybeData else {
+                    return continuation.resume(throwing: URLSessionError.missingResponseOrData)
+                }
 
                 continuation.resume(returning: (data, resp) )
             }.resume()

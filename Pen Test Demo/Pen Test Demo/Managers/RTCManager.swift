@@ -148,14 +148,14 @@ class RTCManager: NSObject, ObservableObject {
 
 // MARK: - Public API
 extension RTCManager {
+    @MainActor
     func joinChannel(name: String, aesKey: String, tokens: Tokens) async {
         connectionState.send(.connecting)
         setEncryption(aesKey)
 
         logger.info("tokens \(tokens.uid), rtc \(tokens.rtc)")
-        await MainActor.run {
-            self.myUid = tokens.uid
-        }
+
+        self.myUid = tokens.uid
 
 
         let status = engine.joinChannel(byToken: tokens.rtc, channelId: name, info: .none, uid: tokens.uid) { [weak self] _, uid, _ in
@@ -171,6 +171,7 @@ extension RTCManager {
         }
     }
 
+    @MainActor
     func leave() {
         connectionState.send(.disconnected)
         engine.leaveChannel { [weak self] _ in

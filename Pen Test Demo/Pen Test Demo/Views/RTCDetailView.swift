@@ -37,17 +37,14 @@ struct RTCDetailView: View {
                 VideoView(uid: rtcUser.uid, highQuality: fullSize)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                GeometryReader {
-                    Color.black
-                        .padding()
-                        .clipShape(RoundedRectangle(cornerRadius: $0.size.height / 2))
-                        .overlay(VStack {
-                            Text("FPS: \(rtcUser.fps)")
-                                .foregroundColor(.white)
-                        })
-
-                }
-                .frame(width: 100, height: 50)
+                Color.black
+                    .overlay(VStack {
+                        Text("FPS: \(rtcUser.fps)")
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .clipShape(Capsule())
+                    })
+                    .frame(width: 100, height: 50)
             }.frame(width: proxy.size.height, height: proxy.size.height)
         }
         .id(rtcUser.uid)
