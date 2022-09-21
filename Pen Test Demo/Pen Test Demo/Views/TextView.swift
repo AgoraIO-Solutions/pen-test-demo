@@ -19,15 +19,17 @@ struct TextView: View {
             List(rtmManager.messages, id: \.self) {
                 Text($0).padding()
             }
-            TextField("Say Something", text: $text)
-                .onSubmit {
-                    let sentText = text
-                    Task {
-                        await rtmManager.send(sentText)
+
+            HStack {
+                TextField("Say Something", text: $text)
+                    .keyboardType(.twitter)
+                Button("Send") {
+                    Task.detached {
+                        await rtmManager.send(text)
                     }
-                    text = ""
                 }
-                .padding()
+            }
+            .padding()
 
         }
         .adaptsToKeyboard()

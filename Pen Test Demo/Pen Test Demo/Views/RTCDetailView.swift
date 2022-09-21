@@ -38,11 +38,14 @@ struct RTCDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 GeometryReader {
-                    Text("FPS: \(rtcUser.fps)")
+                    Color.black
                         .padding()
-                        .background(.black)
-                        .foregroundColor(.white)
-                        .background(in: RoundedRectangle(cornerRadius: $0.size.height / 2))
+                        .clipShape(RoundedRectangle(cornerRadius: $0.size.height / 2))
+                        .overlay(VStack {
+                            Text("FPS: \(rtcUser.fps)")
+                                .foregroundColor(.white)
+                        })
+
                 }
                 .frame(width: 100, height: 50)
             }.frame(width: proxy.size.height, height: proxy.size.height)

@@ -75,10 +75,31 @@ struct NetworkClient {
 
     private static func getFromNetwork<T: Decodable>(networkRequest: NetworkRequest) async throws -> T {
         let urlReq = try networkRequest.getUrlRequest()
-        let (data, resp) = try await URLSession.shared.data(for: urlReq)
+        let (data, resp) = try await URLSession.shared.fetchData(urlReq)
         if let httpResponse = (resp as? HTTPURLResponse) {
             logger.info("http response \(httpResponse)")
         }
+
         return try decoder.decode(T.self, from: data)
+    }
+}
+
+enum URLSessionError: Error {
+    case missingResponseOrData
+}
+
+extension URLSession {
+    func fetchData(_ urlRequest: URLRequest) async throws -> (Data, URLResponse) {
+        return try await withCheckedThrowingContinuation { continuation in
+            URLSession.shared.dataTask(with: urlRequest) { maybeData, maybeResp, maybeErr in
+                if let err = maybeErr {
+                    return continuation.resume(throwing: err)
+                }
+
+                guard let resp = maybeResp, let data = maybeData else { return continuation.resume(throwing: URLSessionError.missingResponseOrData) }
+
+                continuation.resume(returning: (data, resp) )
+            }.resume()
+        }
     }
 }
