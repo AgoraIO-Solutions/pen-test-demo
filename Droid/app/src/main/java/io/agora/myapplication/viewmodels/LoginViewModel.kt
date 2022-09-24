@@ -28,10 +28,10 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel(), LoginSceneViewModel {
     override val loginState: StateFlow<LoginState> get() = rteManager.loginState
     override val qosState: StateFlow<QOS> = MutableStateFlow(Excellent)
-    override var channel by mutableStateOf("test channel")
+    override var channel by mutableStateOf("TEST")
 
     override fun login() {
-        rteManager.login(channel)
+        rteManager.login(channel.uppercase())
     }
 
     fun logout() {

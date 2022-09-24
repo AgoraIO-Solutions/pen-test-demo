@@ -13,6 +13,7 @@ import io.agora.myapplication.ui.scenes.RTCScene
 import io.agora.myapplication.ui.scenes.RTMScene
 import io.agora.myapplication.ui.scenes.SettingsScene
 import io.agora.myapplication.viewmodels.LoginViewModel
+import io.agora.myapplication.viewmodels.RTMViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -28,7 +29,6 @@ fun DemoApp(navigator: Navigator) {
                 }
             } else if (it == LoginNavItem) {
                 Log.i("navigation", "trying to pop")
-                val formerRoute = navigationController.currentDestination?.route ?: throw Throwable("fail")
                 navigationController.navigate(LoginNavItem.route) {
                     popUpTo(0)
                 }
@@ -50,7 +50,8 @@ fun DemoApp(navigator: Navigator) {
             RTCScene()
         }
         composable(RTMNavItem.route) {
-            RTMScene()
+            val viewModel = hiltViewModel<RTMViewModel>()
+            RTMScene(viewModel)
         }
         composable(SettingsNavItem.route) {
             SettingsScene()
