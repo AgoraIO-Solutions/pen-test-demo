@@ -72,6 +72,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'io.agora.rtc:full-sdk:3.7.1'
     implementation 'io.agora.rtm:rtm-sdk:1.5.1'
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
