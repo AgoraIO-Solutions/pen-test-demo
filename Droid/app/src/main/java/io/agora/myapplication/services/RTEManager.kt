@@ -18,47 +18,72 @@ object LoggedIn: LoginState()
 object LoggingIn: LoginState()
 object LoggedOut: LoginState()
 
+sealed class ConnectionState
+object Connected: ConnectionState()
+object Connecting: ConnectionState()
+object Disconnected: ConnectionState()
+
 @Module
 @InstallIn(SingletonComponent::class)
 object RTEManagerModule {
     @Provides
     @Singleton
-    fun provideRTEManager(navigator: Navigator, networkService: NetworkService): RTEManager = RTEManager(navigator, networkService)
+    fun provideRTEManager(
+        navigator: Navigator,
+        networkService: NetworkService,
+        rtmManager: RTMManager
+    ): RTEManager = RTEManager(navigator, networkService, rtmManager)
 }
 
 class RTEManager @Inject constructor(
     private val navigator: Navigator,
-    private val networkService: NetworkService
-) : EZExceptionHandler {
+    private val networkService: NetworkService,
+    private val rtmManager: RTMManager
+): EZExceptionHandler {
     private val scope = CoroutineScope(Dispatchers.Default)
+
+    init {
+        scope.launch(exceptionHandler) {
+            rtmManager.connectionState.collect {
+                info("Connection state of rtm changed to $it")
+                val state = when (it) {
+                    Connecting -> LoggingIn
+                    Connected -> {
+                        navigator.navigateTo(RTCNavItem)
+                        LoggedIn
+                    }
+                    else -> {
+                        navigator.navigateTo(LoginNavItem)
+                        LoggedOut
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    _loginState.emit(state)
+                }
+            }
+        }
+    }
 
     private val _loginState: MutableStateFlow<LoginState> = MutableStateFlow(LoggedOut)
     val loginState: StateFlow<LoginState> get() = _loginState
 
     fun login(channelName: String) {
         scope.launch(exceptionHandler) {
-            withContext(Dispatchers.Main) {
-                _loginState.emit(LoggingIn)
-            }
-
+            _loginState.emit(LoggingIn)
             try {
                 val aesKey = getAesKey(channelName)
                 info("Got the aes key $aesKey")
 
                 val agoraToken = getAgoraToken(channelName)
                 info("Got the agora token $agoraToken")
+
+                rtmManager.join(channelName, agoraToken)
             } catch (th: Throwable) {
                 error("Throwable $th")
                 withContext(Dispatchers.Main) {
                     _loginState.emit(LoggedOut)
                 }
                 return@launch
-            }
-            delay(100)
-            navigator.navigateTo(RTCNavItem)
-
-            withContext(Dispatchers.Main) {
-                _loginState.emit(LoggedIn)
             }
         }
     }
@@ -82,11 +107,6 @@ class RTEManager @Inject constructor(
     }
 
     fun logout() {
-        scope.launch(exceptionHandler) {
-            withContext(Dispatchers.Main) {
-                _loginState.emit(LoggedOut)
-                navigator.navigateTo(LoginNavItem)
-            }
-        }
+        rtmManager.logout()
     }
 }
