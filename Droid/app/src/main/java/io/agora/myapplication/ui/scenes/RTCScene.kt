@@ -1,18 +1,26 @@
 package io.agora.myapplication.ui.scenes
 
+import android.util.Log
+import android.view.SurfaceView
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import io.agora.myapplication.services.*
 import io.agora.myapplication.ui.app.RTCNavItem
 import io.agora.myapplication.ui.common.AppBottomBar
+import io.agora.myapplication.ui.common.VideoView
 import io.agora.myapplication.ui.theme.MyApplicationTheme
+import io.agora.myapplication.utils.EZLogger
 import io.agora.myapplication.viewmodels.RTCVM
 
 @Composable
@@ -41,17 +49,47 @@ private fun RTCSceneContent(rtcvm: RTCVM) {
 
         Column {
             Row(Modifier.height(bigVideo)) {
-               Text("Big Videos")
+
+                RTCBigVideo(rtcvm = rtcvm, height = bigVideo, focusedUid = rtcvm.focusedUid)
             }
             Row(Modifier.height(smallVideos)) {
-                Text("Small Videos")
+                RTCSmallVideos(
+                    rtcvm, height = smallVideos
+                )
             }
             Row(Modifier.height(controlHeight)) {
                 RTCControls(rtcvm = rtcvm)
             }
         }
-
     }    
+}
+
+@Composable
+private fun RTCBigVideo(rtcvm: RTCVM, height: Dp, focusedUid: Int) {
+    Log.i("Big video", "focusedUid $focusedUid")
+    rtcvm.rtcUsers.find { it.uid == focusedUid }?.let {
+        VideoView(rtcUser = it, big = true, Modifier.size(height, height))
+    } ?: run {
+        Text(text = "No focused UID")
+    }
+}
+
+@Composable
+private fun RTCSmallVideos(rtcvm: RTCVM, height: Dp) {
+    LazyRow {
+        items(rtcvm.rtcUsers) { rtcUser ->
+            VideoView(
+                rtcUser = rtcUser,
+                big = false,
+                modifier = Modifier
+                    .size(height, (height.value * 2).dp)
+                    .clickable {
+                        Log.i(this.javaClass.simpleName, "Focus ID now ${rtcUser.uid}" )
+                        rtcvm.focusedUid = rtcUser.uid
+                    }
+            )
+        }
+    }
 }
 
 
@@ -80,7 +118,6 @@ private fun RTCControls(rtcvm: RTCVM) {
         }
         Row(Modifier.padding(5.dp)) {
             RTCVideoQualityDialogAndButton(rtcvm = rtcvm)
-
         }
     }
 }
@@ -134,6 +171,10 @@ private object FakeRTCVM: RTCVM {
     override var videoQuality: VideoQuality = HighVideoQuality
     override var publishAudio: Boolean = false
     override var publishVideo: Boolean = false
+    override var focusedUid: Int = 0
+    override fun setupVideo(surfaceView: SurfaceView, uid: Int, big: Boolean) {
+
+    }
 }
 
 @Preview

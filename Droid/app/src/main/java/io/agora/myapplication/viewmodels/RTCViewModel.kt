@@ -1,5 +1,6 @@
 package io.agora.myapplication.viewmodels
 
+import android.view.SurfaceView
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.agora.myapplication.services.RTCManager
@@ -12,6 +13,8 @@ interface RTCVM {
     var videoQuality: VideoQuality
     var publishAudio: Boolean
     var publishVideo: Boolean
+    var focusedUid: Int
+    fun setupVideo(surfaceView: SurfaceView, uid: Int, big: Boolean)
 }
 
 @HiltViewModel
@@ -24,6 +27,12 @@ class RTCViewModel @Inject constructor(
             rtcManager.videoQuality = value
         }
 
+    override var focusedUid: Int
+        get() = rtcManager.focusedUid
+        set(value) {
+            rtcManager.focusedUid = value
+        }
+
     override val rtcUsers: List<RTCUser>
         get() = rtcManager.rtcUsers
 
@@ -34,4 +43,8 @@ class RTCViewModel @Inject constructor(
     override var publishVideo: Boolean
         get() = rtcManager.publishVideo
         set(value) {  rtcManager.publishVideo = value }
+
+    override fun setupVideo(surfaceView: SurfaceView, uid: Int, big: Boolean) {
+        rtcManager.setupVideo(surfaceView, uid, big)
+    }
 }

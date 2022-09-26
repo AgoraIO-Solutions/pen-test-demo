@@ -1,6 +1,7 @@
 package io.agora.myapplication.services
 
 import android.content.Context
+import android.view.SurfaceView
 import androidx.compose.runtime.*
 import dagger.Module
 import dagger.Provides
@@ -15,9 +16,11 @@ import io.agora.rtc.Constants.CHANNEL_PROFILE_COMMUNICATION
 import io.agora.rtc.internal.EncryptionConfig
 import io.agora.rtc.internal.EncryptionConfig.EncryptionMode.AES_256_GCM
 import io.agora.rtc.internal.LastmileProbeConfig
+import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
 import io.agora.rtc.video.VideoEncoderConfiguration.FRAME_RATE.*
 import io.agora.rtc.video.VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE
+import io.agora.rtc.video.VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_PORTRAIT
 import io.agora.rtc.video.VideoEncoderConfiguration.STANDARD_BITRATE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +39,8 @@ object RTCModule {
     fun provideRTCManager(@ApplicationContext context: Context) = RTCManager(context)
 }
 
+private val StandardOrientationMode = ORIENTATION_MODE_FIXED_PORTRAIT
+
 sealed class VideoQuality(
     val identifier: String,
     val agoraVideoEncoderConfiguration: VideoEncoderConfiguration
@@ -46,7 +51,7 @@ object LowVideoQuality: VideoQuality(
          VideoEncoderConfiguration.VideoDimensions(160, 120),
         FRAME_RATE_FPS_15,
         STANDARD_BITRATE,
-        ORIENTATION_MODE_ADAPTIVE
+        StandardOrientationMode
     )
 )
 
@@ -56,7 +61,7 @@ object MediumVideoQuality: VideoQuality(
         VideoEncoderConfiguration.VideoDimensions(480, 360),
         FRAME_RATE_FPS_24,
         STANDARD_BITRATE,
-        ORIENTATION_MODE_ADAPTIVE
+        StandardOrientationMode
     )
 )
 
@@ -66,7 +71,7 @@ object HighVideoQuality: VideoQuality(
         VideoEncoderConfiguration.VideoDimensions(960, 720),
         FRAME_RATE_FPS_30,
         STANDARD_BITRATE,
-        ORIENTATION_MODE_ADAPTIVE
+        StandardOrientationMode
     )
 )
 
@@ -204,7 +209,20 @@ class RTCManager(
         rtcUsers.clear()
     }
 
+    fun setupVideo(surfaceView: SurfaceView, uid: Int, big: Boolean) {
+        surfaceView.setZOrderMediaOverlay(true)
+        if (uid == myUID) {
+            agoraAppEngine.setupLocalVideo(VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, 0))
+        } else {
+            agoraAppEngine.setupRemoteVideo(VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid))
 
+        }
+        if (big) {
+            agoraAppEngine.setRemoteVideoStreamType(uid, 0)
+        } else{
+            agoraAppEngine.setRemoteVideoStreamType(uid, 1)
+        }
+    }
 
     private inner class EngineEventHandler: IRtcEngineEventHandler() {
         override fun onLastmileQuality(quality: Int) {
@@ -223,12 +241,13 @@ class RTCManager(
         }
 
         override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
-            info("Successfully joined $channel")
+            info("Local Successfully joined $channel")
+
             rtcUsers.add(RTCUser(uid))
         }
 
         override fun onUserJoined(uid: Int, elapsed: Int) {
-            super.onUserJoined(uid, elapsed)
+            info("Remote user joined $uid")
             rtcUsers.add(RTCUser(uid))
             if (focusedUid == 0) {
                 focusedUid = uid
