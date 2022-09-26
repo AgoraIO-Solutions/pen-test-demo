@@ -10,6 +10,8 @@ import io.agora.myapplication.utils.EZExceptionHandler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,24 +33,30 @@ object RTEManagerModule {
     fun provideRTEManager(
         navigator: Navigator,
         networkService: NetworkService,
-        rtmManager: RTMManager
-    ): RTEManager = RTEManager(navigator, networkService, rtmManager)
+        rtmManager: RTMManager,
+        rtcManager: RTCManager
+    ): RTEManager = RTEManager(navigator, networkService, rtmManager, rtcManager)
 }
 
 class RTEManager @Inject constructor(
     private val navigator: Navigator,
     private val networkService: NetworkService,
-    private val rtmManager: RTMManager
+    private val rtmManager: RTMManager,
+    private val rtcManager: RTCManager
 ): EZExceptionHandler {
     private val scope = CoroutineScope(Dispatchers.Default)
 
     init {
         scope.launch(exceptionHandler) {
-            rtmManager.connectionState.collect {
-                info("Connection state of rtm changed to $it")
-                val state = when (it) {
-                    Connecting -> LoggingIn
-                    Connected -> {
+            rtmManager.connectionState.combine(rtcManager.connectionState) { rtmConnection, rtcConnection ->
+                info("Connection state of rtm changed to $rtmConnection, rtcConnection $rtcConnection")
+                val state = when (Pair(rtmConnection, rtcConnection)) {
+                    Pair(Connecting, Connecting) -> LoggingIn
+                    Pair(Connected, Connecting) -> LoggingIn
+                    Pair(Connecting, Connected) -> LoggingIn
+                    Pair(Disconnected, Connecting) -> LoggingIn
+                    Pair(Connecting, Disconnected) -> LoggingIn
+                    Pair(Connected, Connected) -> {
                         navigator.navigateTo(RTCNavItem)
                         LoggedIn
                     }
@@ -60,7 +68,7 @@ class RTEManager @Inject constructor(
                 withContext(Dispatchers.Main) {
                     _loginState.emit(state)
                 }
-            }
+            }.collect()
         }
     }
 
@@ -77,7 +85,11 @@ class RTEManager @Inject constructor(
                 val agoraToken = getAgoraToken(channelName)
                 info("Got the agora token $agoraToken")
 
+                async {
+                    rtcManager.join(channelName, agoraToken, aesKey)
+                }
                 rtmManager.join(channelName, agoraToken)
+
             } catch (th: Throwable) {
                 error("Throwable $th")
                 withContext(Dispatchers.Main) {
@@ -108,5 +120,6 @@ class RTEManager @Inject constructor(
 
     fun logout() {
         rtmManager.logout()
+        rtcManager.leave()
     }
 }

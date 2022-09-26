@@ -5,29 +5,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.agora.myapplication.services.LoginState
-import io.agora.myapplication.services.Navigator
-import io.agora.myapplication.services.RTEManager
+import io.agora.myapplication.services.*
 import io.agora.myapplication.ui.scenes.LoginSceneViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-sealed class QOS(val quality: String)
-object Excellent: QOS(quality = "Excellent")
-object Good: QOS(quality = "Good")
-object Ok: QOS(quality = "Ok")
-object Bad: QOS(quality = "Bad")
-object VeryBad: QOS(quality = "Very Bad")
-object Unknown: QOS(quality = "Unknown")
+
 
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val rteManager: RTEManager
+    private val rteManager: RTEManager,
+    private val rtcManager: RTCManager
 ) : ViewModel(), LoginSceneViewModel {
     override val loginState: StateFlow<LoginState> get() = rteManager.loginState
-    override val qosState: StateFlow<QOS> = MutableStateFlow(Excellent)
+    override val qosState: QOS get() = rtcManager.networkQuality
     override var channel by mutableStateOf("TEST")
 
     override fun login() {

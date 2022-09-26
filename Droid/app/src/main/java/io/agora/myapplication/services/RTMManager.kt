@@ -42,10 +42,8 @@ class RTMManager @Inject constructor(
     val connectionState: SharedFlow<ConnectionState> get() = _connectionState
     val messages: List<String> get() = _messages
 
-    fun join(channelName: String, tokens: Tokens) {
-        scope.launch(exceptionHandler) {
-            _connectionState.emit(Connecting)
-        }
+    fun join(channelName: String, tokens: Tokens) = scope.launch {
+        _connectionState.emit(Connecting)
         agoraRtmClient.login(tokens.rtm, tokens.rtmuid, object : ResultCallback<Void> {
             override fun onSuccess(p0: Void?) {
                 channel = agoraRtmClient.createChannel(channelName, this@RTMManager)

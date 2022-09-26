@@ -13,6 +13,7 @@ import io.agora.myapplication.ui.scenes.RTCScene
 import io.agora.myapplication.ui.scenes.RTMScene
 import io.agora.myapplication.ui.scenes.SettingsScene
 import io.agora.myapplication.viewmodels.LoginViewModel
+import io.agora.myapplication.viewmodels.RTCViewModel
 import io.agora.myapplication.viewmodels.RTMViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -47,7 +48,8 @@ fun DemoApp(navigator: Navigator) {
             LoginScene(viewModel = viewModel)
         }
         composable(RTCNavItem.route) {
-            RTCScene()
+            val viewModel = hiltViewModel<RTCViewModel>()
+            RTCScene(viewModel)
         }
         composable(RTMNavItem.route) {
             val viewModel = hiltViewModel<RTMViewModel>()

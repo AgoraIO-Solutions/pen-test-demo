@@ -11,19 +11,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.agora.myapplication.services.Excellent
 import io.agora.myapplication.services.LoggedOut
 import io.agora.myapplication.services.LoginState
+import io.agora.myapplication.services.QOS
 import io.agora.myapplication.ui.theme.MyApplicationTheme
-import io.agora.myapplication.viewmodels.Excellent
-import io.agora.myapplication.viewmodels.LoginViewModel
-import io.agora.myapplication.viewmodels.QOS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.math.log
 
 interface LoginSceneViewModel {
     val loginState: StateFlow<LoginState>
-    val qosState: StateFlow<QOS>
+    val qosState: QOS
     var channel: String
     fun login()
 }
@@ -31,12 +29,11 @@ interface LoginSceneViewModel {
 @Composable
 fun LoginScene(viewModel: LoginSceneViewModel) {
     val loginState by viewModel.loginState.collectAsState()
-    val qos by viewModel.qosState.collectAsState()
-    _LoginScene(viewModel = viewModel, loginState = loginState, qos = qos)
+    _LoginScene(viewModel = viewModel, loginState = loginState)
 }
 
 @Composable
- private fun _LoginScene(viewModel: LoginSceneViewModel, loginState: LoginState, qos: QOS) {
+ private fun _LoginScene(viewModel: LoginSceneViewModel, loginState: LoginState) {
     Scaffold(
         topBar = { TopAppBar() {
             Text(text = "Log In")
@@ -61,7 +58,7 @@ fun LoginScene(viewModel: LoginSceneViewModel) {
             }
             Row(modifier = rowModifier) {
                Text(
-                   text ="Network Condition: ${qos.quality}"
+                   text ="Network Condition: ${viewModel.qosState.quality}"
                )
             }
         }
@@ -71,8 +68,7 @@ fun LoginScene(viewModel: LoginSceneViewModel) {
 
 private class FakeLoginViewModel: LoginSceneViewModel {
     override var channel = "channel"
-    override val qosState: StateFlow<QOS>
-        get() = MutableStateFlow(Excellent)
+    override val qosState: QOS = Excellent
     override val loginState: StateFlow<LoginState>
         get() = MutableStateFlow(LoggedOut)
     override fun login() {}
