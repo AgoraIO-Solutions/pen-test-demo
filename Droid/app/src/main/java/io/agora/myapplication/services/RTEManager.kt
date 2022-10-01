@@ -80,10 +80,10 @@ class RTEManager @Inject constructor(
             _loginState.emit(LoggingIn)
             try {
                 val aesKey = getAesKey(channelName)
-                info("Got the aes key $aesKey")
+                debug("Got the aes key $aesKey")
 
                 val agoraToken = getAgoraToken(channelName)
-                info("Got the agora token $agoraToken")
+                debug("Got the agora token $agoraToken")
 
                 async {
                     rtcManager.join(channelName, agoraToken, aesKey)

@@ -3,6 +3,7 @@ package io.agora.myapplication
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +31,9 @@ class MainActivity : ComponentActivity(), EZLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         info("booted!")
+
         checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO)
         checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_RECORD_VIDEO)
 

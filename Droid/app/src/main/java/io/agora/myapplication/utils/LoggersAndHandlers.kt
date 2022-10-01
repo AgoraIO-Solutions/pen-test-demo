@@ -3,15 +3,21 @@ package io.agora.myapplication.utils
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
 
+private var LogLevel = android.util.Log.WARN
+
 interface EZLogger {
     private val TAG: String get() = javaClass.simpleName
 
     fun error(msg: String) {
-        Log.e(TAG, msg)
+        if (LogLevel <= Log.ERROR) Log.e(TAG, msg)
     }
 
     fun info(msg: String) {
-        Log.i(TAG, msg)
+        if (LogLevel <= Log.INFO) Log.i(TAG, msg)
+    }
+
+    fun debug(msg: String) {
+        if (LogLevel <= Log.DEBUG) Log.d(TAG, msg)
     }
 }
 
