@@ -11,28 +11,28 @@ const options: RequestInit = {
   },
 };
 
-async function getApiTokens(channelName: string): Tokens {
-  try {
-    const response = await fetch(`${URL}/dev/api/pen_test_token?channel=${channelName}`, options);
-    const newTokens = new Tokens();
-    newTokens.copyInto(response.json());
-    return response;
-  } catch (e) {
-    console.error(`Error ${e}`);
+async function getApiTokens(channelName: string): Promise<Tokens> {
+  const response = await fetch(
+    `${URL}/dev/api/pen_test_token?channel=${channelName}`,
+    options,
+  );
+  const {data, errors} = await response.json();
+  if (response.ok) {
+    return data;
+  } else {
+    throw errors;
   }
 }
 
-async function getAesKey(channelName: string) {
+async function getAesKey(channelName: string) {}
 
+export interface AesKey {
+  key: string;
 }
 
-export type AesKey = {
-  key: string;
-};
-
-export type Tokens = {
+export interface Tokens {
   uid: number;
   rtmuid: string;
   rtc: string;
   rtm: string;
-};
+}
