@@ -1,3 +1,4 @@
+// @ts-ignore
 import {AWS_APP_KEY, AWS_API_BASE} from '@env';
 
 const URL = `https://${AWS_API_BASE}`;

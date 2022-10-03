@@ -4,7 +4,7 @@ import {useHookstate} from '@hookstate/core';
 import LoginState from './State/LoginState';
 import GlobalLoginState from './State/LoginState';
 
-const LoggedInScreen: React.FC = () => {
+const RTMScreen: React.FC = () => {
   const loginState = useHookstate<typeof LoginState>(GlobalLoginState);
   function logOut() {
     // @ts-ignore
@@ -13,10 +13,10 @@ const LoggedInScreen: React.FC = () => {
 
   return (
     <SafeAreaView>
-      <Text>Hello Log In</Text>
+      <Text>Hello RTMScreen</Text>
       <Button title="Logout" onPress={logOut} />
     </SafeAreaView>
   );
 };
 
-export default LoggedInScreen;
+export default RTMScreen;
