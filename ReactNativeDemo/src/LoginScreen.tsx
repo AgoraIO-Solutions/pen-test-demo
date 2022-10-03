@@ -8,16 +8,28 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {useHookstate} from '@hookstate/core';
-import GlobalLoginState, {logIn} from './State/LoginState';
+import GlobalLoginState from './State/LoginState';
+import { LogInStackProps } from "./Navigator";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import LoginState from "./State/LoginState";
 
 const LoginHeader = 'Login';
 const ChannelPrompt = 'Enter a channel name';
 const ButtonTitle = 'Join!';
 
-const LoginScreen = () => {
+
+const LoginScreen: React.FC = () => {
   const [channelName, setChannelName] = useState<string>('TEST');
+  const loginState = useHookstate<typeof LoginState>(GlobalLoginState);
+
   function updateChannelName(newName: string) {
     setChannelName(newName.toUpperCase().replace(/[\W_]+/g, ''));
+  }
+  function logIn() {
+    // @ts-ignore
+    loginState.set(() => {
+      return {loggedIn: true, aesKey: null, tokens: null};
+    });
   }
   return (
     <SafeAreaView style={styles.safeArea}>

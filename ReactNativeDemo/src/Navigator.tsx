@@ -8,7 +8,7 @@ import GlobalLoginState from './State/LoginState';
 
 const Stack = createNativeStackNavigator();
 
-const Navigator = () => {
+const Navigator: React.FC = () => {
   const loginState = useHookstate(GlobalLoginState);
   return (
     <NavigationContainer>

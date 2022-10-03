@@ -14,11 +14,3 @@ const defaultLoginState: LoginState = {
 const GlobalLoginState = hookstate(defaultLoginState);
 
 export default GlobalLoginState;
-
-export const logIn = () => {
-  GlobalLoginState.loggedIn.set(true);
-};
-
-export const logOut = () => {
-  GlobalLoginState.loggedIn.set(false);
-};
