@@ -9,27 +9,41 @@ import {
 import React, {useState} from 'react';
 import {useHookstate} from '@hookstate/core';
 import GlobalLoginState from './State/LoginState';
-import { LogInStackProps } from "./Navigator";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import LoginState from "./State/LoginState";
+import LoginState from './State/LoginState';
+import { getAesKey, getApiTokens } from "./Networking/Client";
 
 const LoginHeader = 'Login';
 const ChannelPrompt = 'Enter a channel name';
 const ButtonTitle = 'Join!';
 
-
 const LoginScreen: React.FC = () => {
+  // tODO: Indicate logging in
+  const [loggingIn, setLoggingIn] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>('TEST');
   const loginState = useHookstate<typeof LoginState>(GlobalLoginState);
 
   function updateChannelName(newName: string) {
     setChannelName(newName.toUpperCase().replace(/[\W_]+/g, ''));
   }
-  function logIn() {
-    // @ts-ignore
-    loginState.set(() => {
-      return {loggedIn: true, aesKey: null, tokens: null};
-    });
+  async function logIn() {
+    if (loggingIn) {
+      return;
+    }
+    setLoggingIn(true);
+    try {
+      const [tokens, aesKey] = await Promise.all([
+        getApiTokens(channelName),
+        getAesKey(channelName),
+      ]);
+      // @ts-ignore
+      loginState.set(_ => {
+        return {loggedIn: true, aesKey: aesKey, tokens: tokens};
+      });
+    } catch (e) {
+      console.error(`An Error logging in ${e}`);
+    } finally {
+      setLoggingIn(false);
+    }
   }
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -42,11 +56,12 @@ const LoginScreen: React.FC = () => {
           placeholder={ChannelPrompt}
           clearButtonMode="always"
         />
-        <TouchableOpacity
-          onPress={logIn}
-          style={styles.button}>
+        <TouchableOpacity onPress={logIn} style={styles.button} disabled={loggingIn}>
           <Text style={styles.buttonText}>{ButtonTitle}</Text>
         </TouchableOpacity>
+      <Text>
+        // TODO: Network Status
+      </Text>
       </View>
       <View style={styles.bottomSpacer} />
     </SafeAreaView>

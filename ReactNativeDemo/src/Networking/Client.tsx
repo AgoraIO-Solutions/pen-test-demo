@@ -1,30 +1,28 @@
-import {AWS_APP_KEY, AWS_API_Base} from '@env';
+import {AWS_APP_KEY, AWS_API_BASE} from '@env';
 
-const URL = `https://${AWS_API_Base}`;
+const URL = `https://${AWS_API_BASE}`;
 
 const options: RequestInit = {
+  mode: 'no-cors',
   method: 'GET',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
-    'X-API-KEY': AWS_APP_KEY,
+    'x-api-key': AWS_APP_KEY,
   },
 };
 
-async function getApiTokens(channelName: string): Promise<Tokens> {
-  const response = await fetch(
-    `${URL}/dev/api/pen_test_token?channel=${channelName}`,
-    options,
-  );
-  const {data, errors} = await response.json();
-  if (response.ok) {
-    return data;
-  } else {
-    throw errors;
-  }
+export async function getApiTokens(channelName: string): Promise<Tokens> {
+  const url = `${URL}/dev/api/pen_test_token?channel=${channelName}`;
+  const response = await fetch(url, options);
+  return await response.json();
 }
 
-async function getAesKey(channelName: string) {}
+export async function getAesKey(channelName: string): Promise<AesKey> {
+  const url = `${URL}/dev/api/pen_test_aes_key?channel=${channelName}`;
+  const response = await fetch(url, options);
+  return await response.json();
+}
 
 export interface AesKey {
   key: string;
