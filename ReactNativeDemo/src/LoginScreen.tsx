@@ -31,10 +31,10 @@ const LoginScreen: React.FC = () => {
     }
     setLoggingIn(true);
     try {
-      const [tokens, aesKey] = await Promise.all([
+      const [tokens, aesKey] =  [null, null];/* await Promise.all([
         getApiTokens(channelName),
         getAesKey(channelName),
-      ]);
+      ]);*/
       // @ts-ignore
       loginState.set(_ => {
         return {loggedIn: true, aesKey: aesKey, tokens: tokens};
